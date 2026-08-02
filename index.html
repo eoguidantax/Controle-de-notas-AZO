@@ -690,6 +690,7 @@
     overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
     document.getElementById('mCancel').addEventListener('click', function(){ overlay.remove(); });
     document.getElementById('mSave').addEventListener('click', async function(){
+     try{
       clearFieldErrors(overlay);
       var nomeEl = document.getElementById('mNome'), pinEl = document.getElementById('mPin'), limiteEl = document.getElementById('mLimite');
       var nome = nomeEl.value.trim();
@@ -717,9 +718,14 @@
         cicloInicio: now, cicloFim: now + CICLO_DIAS*24*60*60*1000
       };
       state.clients.push(Object.assign({id:newClientId}, newClientData));
-      try{ await db.collection('clientes').doc(newClientId).set(newClientData); }catch(e){ showToast('Erro ao salvar cliente. Verifique a conexão.'); }
+      await db.collection('clientes').doc(newClientId).set(newClientData);
       overlay.remove();
       render();
+      showToast('Cliente "'+nome+'" salvo.');
+     }catch(err){
+      console.error('Erro ao salvar cliente:', err);
+      showToast('Erro ao salvar: '+(err && err.message ? err.message : err));
+     }
     });
   }
 
